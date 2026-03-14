@@ -32,7 +32,6 @@ Unless you override them in the prompt, `wbso-skill` assumes:
 - GitHub assignee: the logged-in `gh` user
 - Linear assignee: the logged-in `linear` user
 - Linear team search scope: `BAC` and `OPS`
-- expected booking target: about 20 hours per work week
 
 ## Example prompt
 
