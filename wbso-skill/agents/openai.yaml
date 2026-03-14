@@ -1,0 +1,7 @@
+interface:
+  display_name: "WBSO Skill"
+  short_description: "AI-led WBSO dry run and apply workflow"
+  default_prompt: "Use $wbso-skill to collect run inputs, inspect GitHub PRs with gh, inspect Linear with the `linear` CLI, show me a dry run, and only apply approved WBSO changes after my review."
+
+policy:
+  allow_implicit_invocation: true
