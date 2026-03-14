@@ -31,24 +31,31 @@ Use the default workflow unless a repository is called out here.
 - If a PR needs a ticket link, put the full Linear issue URL in the PR body instead of a `references ISSUE-123` line.
 - If the PR title contains a key like `[mws-1747]`, treat that as a strong hint for the matching `OPS-1747` or `BAC-545` issue and verify it before creating anything new.
 
+## Defaults
+
+Apply these defaults before asking the user for more input:
+
+- Default repositories: `MatchWornShirt/monorepo` and `360ERP/mws-ftg`.
+- Default GitHub assignee: the authenticated `gh` user. Resolve it with `gh auth status` or `gh api user --jq .login`.
+- Default Linear assignee: the authenticated `linear` user. Resolve it with `linear auth whoami` and use the returned display name or name for `--assignee`.
+- Default Linear team search scope: `BAC` and `OPS`.
+- Default Linear project/team target: prefer the project or team already implied by a linked issue or duplicate candidate. If a brand-new issue still has no clear home after checking both `BAC` and `OPS`, ask the user before creating it.
+- Default expected hours: about `20` hours per calendar work week in the requested range after excluding weekends, Dutch public holidays, and blocked dates. If the user provides an explicit target, use that instead.
+
 ## Run pattern
 
 Follow this exact sequence:
 
-1. Ask for any missing run inputs:
+1. Apply defaults, then ask only for any remaining missing run inputs:
    - start date
    - end date
-   - repositories
-   - GitHub assignee
-   - Linear assignee name if different
-   - Linear team
-   - optional Linear project
-   - expected total hours or per-milestone targets
    - holidays, PTO, and any other blocked dates with no work logged
    - optional other excluded dates
+   - optional overrides for repositories, assignees, Linear team/project target, or expected hours
 2. Verify access:
    - `gh auth status`
    - `linear --version`
+   - `linear auth whoami`
 3. Collect PR data from GitHub.
 4. Reconcile each PR against Linear.
 5. Infer missing WBSO milestones when needed.
@@ -61,8 +68,8 @@ Follow this exact sequence:
 
 Use this order during a real run:
 
-1. collect the date range, repositories, assignee, Linear team/project, expected hours, and holidays / PTO / blocked dates
-2. verify `gh` and `linear` access
+1. collect the date range, holidays / PTO / blocked dates, and only the overrides that differ from the defaults
+2. verify `gh` and `linear` access, then resolve the default GitHub and Linear assignees from the authenticated CLIs if the user did not override them
 3. gather PRs and inspect linked Linear issues
 4. produce a dry run with milestone proposals, duplicate notes, and booking output
 5. resolve duplicate candidates before creating any new Linear issues
@@ -106,6 +113,7 @@ linear issue view ISSUE-123 --json
 
 Use these rules:
 
+- Search for duplicate or reusable issues in both `BAC` and `OPS` by default unless the user explicitly narrows the scope.
 - If a linked Linear issue already has a concrete WBSO label, that Linear WBSO label is the source of truth and GitHub should be synced to match it.
 - If the linked Linear issue has no concrete WBSO label, use the GitHub PR WBSO label if present.
 - If neither side has a concrete WBSO label, infer the best milestone from:
@@ -248,12 +256,12 @@ Generate one output line per calendar day in order from start date to end date.
 
 Keep the allocation believable:
 
-- average about 20 hours per week
+- average about 20 hours per week unless the user gave a different target
 - never more than 8 hours in one day
 - no weekend bookings
 - no Dutch public holiday bookings
 - place hours near the dates of relevant PR activity
-- keep totals close to the expected target
+- keep totals close to the expected target, using the default weekly estimate when no explicit target was provided
 - if multiple milestones are active in the same period, spread them naturally
 
 ## AI behavior expectations
@@ -263,5 +271,5 @@ Keep the allocation believable:
 - The AI should let the user correct milestone mappings, ticket choices, and booking distribution before apply.
 - The AI should only execute the approved `linear` commands after confirmation.
 - When creating tickets, the AI should write descriptions that look like normal teammate-written Linear issues rather than administrative backfills.
-- Before generating booking rows, the AI should explicitly ask for holidays, PTO, and other no-work dates so those days stay blank.
+- Before generating booking rows, the AI should explicitly ask for holidays, PTO, and other no-work dates so those days stay blank, even when every other input came from defaults.
 - The AI should start small when possible: test one PR, let the user inspect it, then continue with larger batches.

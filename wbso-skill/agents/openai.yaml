@@ -1,7 +1,7 @@
 interface:
   display_name: "WBSO Skill"
-  short_description: "AI-led WBSO dry run and apply workflow"
-  default_prompt: "Use $wbso-skill to collect run inputs, inspect GitHub PRs with gh, inspect Linear with the `linear` CLI, show me a dry run, and only apply approved WBSO changes after my review."
+  short_description: "AI-led WBSO dry run and apply workflow with smart defaults"
+  default_prompt: "Use $wbso-skill with the default repositories, the logged-in gh and linear users, BAC/OPS as the default Linear scope, and about 20 hours per work week unless I override them. Collect the remaining run inputs, inspect GitHub PRs with gh, inspect Linear with the `linear` CLI, show me a dry run, and only apply approved WBSO changes after my review."
 
 policy:
   allow_implicit_invocation: true
